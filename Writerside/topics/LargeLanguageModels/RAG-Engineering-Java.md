@@ -100,8 +100,8 @@ public class DocumentProcessor {
         return tika.parseToString(inputStream);
     }
     
-    public List<String> splitIntoChunks(String text, int chunkSize, int overlap) {
-        List<String> chunks = new ArrayList<>();
+    public List&lt;String&gt; splitIntoChunks(String text, int chunkSize, int overlap) {
+        List&lt;String&gt; chunks = new ArrayList&lt;&gt;();
         // 实现文本分块逻辑，考虑句子和段落边界
         // ...
         return chunks;
@@ -196,7 +196,7 @@ public class EmbeddingService {
         return embeddingModel.embed(text).content();
     }
     
-    public List<Embedding> batchGenerateEmbeddings(List<String> texts) {
+    public List&lt;Embedding&gt; batchGenerateEmbeddings(List&lt;String&gt; texts) {
         return texts.stream()
                 .map(this::generateEmbedding)
                 .collect(Collectors.toList());
@@ -258,10 +258,10 @@ public class PgVectorRepository {
         });
     }
     
-    public List<DocumentChunk> findSimilarDocuments(float[] queryEmbedding, int limit) {
+    public List&lt;DocumentChunk&gt; findSimilarDocuments(float[] queryEmbedding, int limit) {
         return jdbcTemplate.query(
                 "SELECT id, content, metadata, " +
-                "1 - (embedding <=> ?) AS similarity " +
+                "1 - (embedding &lt;=&gt; ?) AS similarity " +
                 "FROM document_chunks " +
                 "ORDER BY similarity DESC " +
                 "LIMIT ?",
@@ -278,7 +278,7 @@ public class PgVectorRepository {
     
     private Object[] toObjectArray(float[] array) {
         Float[] result = new Float[array.length];
-        for (int i = 0; i < array.length; i++) {
+        for (int i = 0; i &lt; array.length; i++) {
             result[i] = array[i];
         }
         return result;
@@ -302,7 +302,7 @@ public class QueryService {
         this.vectorRepository = vectorRepository;
     }
     
-    public List<DocumentChunk> retrieveRelevantDocuments(String query, int limit) {
+    public List&lt;DocumentChunk&gt; retrieveRelevantDocuments(String query, int limit) {
         // 生成查询嵌入
         Embedding queryEmbedding = embeddingService.generateEmbedding(query);
         
@@ -312,7 +312,7 @@ public class QueryService {
                 .toArray(), limit);
     }
     
-    public String buildContext(List<DocumentChunk> relevantChunks) {
+    public String buildContext(List&lt;DocumentChunk&gt; relevantChunks) {
         // 根据相关性和多样性构建上下文
         return relevantChunks.stream()
                 .sorted(Comparator.comparingDouble(DocumentChunk::getSimilarity).reversed())
@@ -353,7 +353,7 @@ public class ResponseGenerationService {
     
     public String generateResponse(String query) {
         // 检索相关文档
-        List<DocumentChunk> relevantDocs = queryService.retrieveRelevantDocuments(query, 5);
+        List&lt;DocumentChunk&gt; relevantDocs = queryService.retrieveRelevantDocuments(query, 5);
         
         // 构建上下文
         String context = queryService.buildContext(relevantDocs);
@@ -508,16 +508,16 @@ public class AsyncDocumentProcessor {
     private final PgVectorRepository vectorRepository;
     
     @Async
-    public CompletableFuture<Void> processDocumentBatch(List<String> documents, String metadata) {
-        List<String> chunks = documents.stream()
+    public CompletableFuture&lt;Void&gt; processDocumentBatch(List&lt;String&gt; documents, String metadata) {
+        List&lt;String&gt; chunks = documents.stream()
                 .flatMap(doc -> documentProcessor.splitIntoChunks(doc, 1000, 200).stream())
                 .collect(Collectors.toList());
                 
         // 批量生成嵌入
-        List<Embedding> embeddings = embeddingService.batchGenerateEmbeddings(chunks);
+        List&lt;Embedding&gt; embeddings = embeddingService.batchGenerateEmbeddings(chunks);
         
         // 批量保存
-        for (int i = 0; i < chunks.size(); i++) {
+        for (int i = 0; i &lt; chunks.size(); i++) {
             vectorRepository.saveDocumentChunk(
                 chunks.get(i),
                 embeddings.get(i).vectorAsList().stream().mapToFloat(Float::floatValue).toArray(),
@@ -618,7 +618,7 @@ public class TracedQueryService {
         
         try {
             // 记录向量搜索时间
-            List<DocumentChunk> relevantDocs = metrics.getVectorSearchTimer()
+            List&lt;DocumentChunk&gt; relevantDocs = metrics.getVectorSearchTimer()
                     .record(() -> queryService.retrieveRelevantDocuments(query, 5));
             
             logger.info("Query [{}]: Retrieved {} relevant documents in {}ms", 
