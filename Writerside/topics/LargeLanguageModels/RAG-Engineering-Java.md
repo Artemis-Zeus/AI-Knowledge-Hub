@@ -54,9 +54,7 @@
 
 RAG系统在Java中通常采用微服务架构，将各个功能模块解耦，以便于扩展和维护：
 
-```
 文档处理服务 → 嵌入生成服务 → 向量存储服务 → 查询处理服务 → 响应生成服务
-```
 
 ![RAG微服务架构](../../images/rag-microservice-architecture.png)
 
@@ -86,7 +84,7 @@ RAG系统在Java中通常采用微服务架构，将各个功能模块解耦，�
 
 使用Apache Tika实现多格式文档的文本提取：
 
-```java
+<code-block collapsible="true" lang="java">
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.springframework.stereotype.Service;
@@ -109,23 +107,23 @@ public class DocumentProcessor {
         return chunks;
     }
 }
-```
+</code-block>
 
 ### 文本分块策略 {id="text_chunking"}
 
 实现智能分块，保持语义完整性：
 
-```java
-public List<String> splitTextIntoChunks(String text, int targetChunkSize, int overlap) {
-    List<String> sentences = splitIntoSentences(text);
-    List<String> chunks = new ArrayList<>();
+<code-block collapsible="true" lang="java">
+public List&lt;String&gt; splitTextIntoChunks(String text, int targetChunkSize, int overlap) {
+    List&lt;String&gt; sentences = splitIntoSentences(text);
+    List&lt;String&gt; chunks = new ArrayList&lt;&gt;();
     StringBuilder currentChunk = new StringBuilder();
-    
-    for (int i = 0; i < sentences.size(); i++) {
+
+    for (int i = 0; i &lt; sentences.size(); i++) {
         String sentence = sentences.get(i);
         
         // 如果当前块加上新句子不超过目标大小，则添加
-        if (currentChunk.length() + sentence.length() <= targetChunkSize) {
+        if (currentChunk.length() + sentence.length() &lt;= targetChunkSize) {
             currentChunk.append(sentence).append(" ");
         } else {
             // 保存当前块并创建新块
@@ -134,47 +132,49 @@ public List<String> splitTextIntoChunks(String text, int targetChunkSize, int ov
             // 新块从上一块的末尾开始，实现重叠
             int overlapStart = Math.max(0, i - calculateSentencesForOverlap(sentences, i, overlap));
             currentChunk = new StringBuilder();
-            for (int j = overlapStart; j <= i; j++) {
+            for (int j = overlapStart; j &lt;= i; j++) {
                 currentChunk.append(sentences.get(j)).append(" ");
             }
         }
     }
     
     // 添加最后一个块
-    if (currentChunk.length() > 0) {
+    if (currentChunk.length() &gt; 0) {
         chunks.add(currentChunk.toString().trim());
     }
     
     return chunks;
+
 }
 
-private List<String> splitIntoSentences(String text) {
-    // 使用NLP库如OpenNLP或Stanford NLP进行句子分割
-    // 这里简化为基本实现
-    return Arrays.asList(text.split("(?<=[.!?])\\s+"));
+private List&lt;String&gt; splitIntoSentences(String text) {
+// 使用NLP库如OpenNLP或Stanford NLP进行句子分割
+// 这里简化为基本实现
+return Arrays.asList(text.split("(?&lt;=[.!?])\\s+"));
 }
 
-private int calculateSentencesForOverlap(List<String> sentences, int currentIndex, int targetOverlap) {
-    int charCount = 0;
-    int sentenceCount = 0;
-    
-    for (int i = currentIndex - 1; i >= 0; i--) {
+private int calculateSentencesForOverlap(List&lt;String&gt; sentences, int currentIndex, int targetOverlap) {
+int charCount = 0;
+int sentenceCount = 0;
+
+    for (int i = currentIndex - 1; i &gt;= 0; i--) {
         charCount += sentences.get(i).length();
         sentenceCount++;
-        if (charCount >= targetOverlap) {
+        if (charCount &gt;= targetOverlap) {
             break;
         }
     }
     
     return sentenceCount;
+
 }
-```
+</code-block>
 
 ### 嵌入生成模块 {id="embedding_generation"}
 
 使用LangChain4j与OpenAI API集成：
 
-```java
+<code-block collapsible="true" lang="java">
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
@@ -202,13 +202,13 @@ public class EmbeddingService {
                 .collect(Collectors.toList());
     }
 }
-```
+</code-block>
 
 ### 向量存储模块 {id="vector_storage"}
 
 使用PGVector实现向量存储：
 
-```java
+<code-block collapsible="true" lang="java">
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -284,11 +284,11 @@ public class PgVectorRepository {
         return result;
     }
 }
-```
+</code-block>
 
 ### 查询处理模块 {id="query_processing"}
 
-```java
+<code-block collapsible="true" lang="java">
 import dev.langchain4j.data.embedding.Embedding;
 import org.springframework.stereotype.Service;
 
@@ -320,13 +320,13 @@ public class QueryService {
                 .collect(Collectors.joining("\n\n"));
     }
 }
-```
+</code-block>
 
 ### 响应生成模块 {id="response_generation"}
 
 使用LangChain4j与OpenAI API集成：
 
-```java
+<code-block collapsible="true" lang="java">
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
@@ -373,24 +373,24 @@ public class ResponseGenerationService {
         String chat(@ContextVariable("context") String context, @UserMessage String userMessage);
     }
 }
-```
+</code-block>
 
 ## 高级功能实现 {id="advanced_features"}
 
 ### 元数据过滤 {id="metadata_filtering"}
 
-```java
-public List<DocumentChunk> retrieveWithMetadataFilter(String query, String metadataFilter, int limit) {
+<code-block collapsible="true" lang="java">
+public List&lt;DocumentChunk&gt; retrieveWithMetadataFilter(String query, String metadataFilter, int limit) {
     Embedding queryEmbedding = embeddingService.generateEmbedding(query);
-    
+
     return jdbcTemplate.query(
             "SELECT id, content, metadata, " +
-            "1 - (embedding <=> ?) AS similarity " +
+            "1 - (embedding &lt;=&gt; ?) AS similarity " +
             "FROM document_chunks " +
-            "WHERE metadata @> ?::jsonb " +
+            "WHERE metadata @&gt; ?::jsonb " +
             "ORDER BY similarity DESC " +
             "LIMIT ?",
-            (rs, rowNum) -> new DocumentChunk(
+            (rs, rowNum) -&gt; new DocumentChunk(
                     rs.getObject("id", UUID.class),
                     rs.getString("content"),
                     rs.getString("metadata"),
@@ -400,27 +400,28 @@ public List<DocumentChunk> retrieveWithMetadataFilter(String query, String metad
             metadataFilter,
             limit
     );
+
 }
-```
+</code-block>
 
 ### 混合搜索 {id="hybrid_search"}
 
 结合向量搜索和关键词搜索：
 
-```java
-public List<DocumentChunk> hybridSearch(String query, int limit) {
+<code-block collapsible="true" lang="java">
+public List&lt;DocumentChunk&gt; hybridSearch(String query, int limit) {
     Embedding queryEmbedding = embeddingService.generateEmbedding(query);
-    
+
     return jdbcTemplate.query(
             "SELECT id, content, metadata, " +
-            "0.7 * (1 - (embedding <=> ?)) + " +
+            "0.7 * (1 - (embedding &lt;=&gt; ?)) + " +
             "0.3 * ts_rank_cd(to_tsvector('english', content), plainto_tsquery('english', ?)) " +
             "AS hybrid_score " +
             "FROM document_chunks " +
             "WHERE to_tsvector('english', content) @@ plainto_tsquery('english', ?) " +
             "ORDER BY hybrid_score DESC " +
             "LIMIT ?",
-            (rs, rowNum) -> new DocumentChunk(
+            (rs, rowNum) -&gt; new DocumentChunk(
                     rs.getObject("id", UUID.class),
                     rs.getString("content"),
                     rs.getString("metadata"),
@@ -431,14 +432,15 @@ public List<DocumentChunk> hybridSearch(String query, int limit) {
             query,
             limit
     );
+
 }
-```
+</code-block>
 
 ### 缓存实现 {id="caching_implementation"}
 
 使用Spring Cache和Redis实现缓存：
 
-```java
+<code-block collapsible="true" lang="java">
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -455,11 +457,11 @@ public class CachedResponseService {
         return responseService.generateResponse(query);
     }
 }
-```
+</code-block>
 
 Redis配置：
 
-```java
+<code-block collapsible="true" lang="java">
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -484,7 +486,7 @@ public class CacheConfig {
                 .build();
     }
 }
-```
+</code-block>
 
 ## 性能优化 {id="performance_optimization"}
 
@@ -492,7 +494,7 @@ public class CacheConfig {
 
 使用Spring的异步功能处理大量文档：
 
-```java
+<code-block collapsible="true" lang="java">
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -526,11 +528,11 @@ public class AsyncDocumentProcessor {
         return CompletableFuture.completedFuture(null);
     }
 }
-```
+</code-block>
 
 ### 连接池优化 {id="connection_pool_optimization"}
 
-```java
+<code-block collapsible="true" lang="java">
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
@@ -555,13 +557,11 @@ public class DatabaseConfig {
         return new HikariDataSource(config);
     }
 }
-```
-
-## 监控与可观测性 {id="monitoring_observability"}
+</code-block>
 
 ### Micrometer指标收集 {id="micrometer_metrics"}
 
-```java
+<code-block collapsible="true" lang="java">
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Component;
@@ -590,11 +590,11 @@ public class RagMetrics {
         return responseGenerationTimer;
     }
 }
-```
+</code-block>
 
 ### 日志与追踪 {id="logging_tracing"}
 
-```java
+<code-block collapsible="true" lang="java">
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -641,27 +641,23 @@ public class TracedQueryService {
         }
     }
 }
-```
+</code-block>
 
 ## 部署与扩展 {id="deployment_scaling"}
 
 ### Docker配置 {id="docker_configuration"}
 
-```dockerfile
+<code-block collapsible="true" lang="Docker">
 FROM eclipse-temurin:17-jdk-alpine
-
 WORKDIR /app
-
 COPY target/rag-application.jar app.jar
-
 EXPOSE 8080
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
-```
+</code-block>
 
 ### Kubernetes配置 {id="kubernetes_configuration"}
 
-```yaml
+<code-block collapsible="true" lang="yaml">
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -700,7 +696,7 @@ spec:
           value: "jdbc:postgresql://postgres:5432/ragdb"
         - name: SPRING_REDIS_HOST
           value: "redis"
-```
+</code-block>
 
 ## 总结 {id="conclusion"}
 
