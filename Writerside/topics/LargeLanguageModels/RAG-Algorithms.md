@@ -14,7 +14,7 @@
 
 对比学习是优化嵌入空间的有效方法，通过拉近相似样本的距离，推远不相似样本的距离，提高嵌入的判别能力。
 
-<code-block lang="python" collapsible="true" collapsed-title="对比学习微调代码实现">
+```python
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -85,13 +85,13 @@ def domain_finetune_embedding_model(base_model_name, train_data, output_path, ep
     model.save(output_path)
     
     return model
-</code-block>
+```
 
 #### 指令微调 {id="instruction_tuning"}
 
 指令微调通过明确的任务指令引导嵌入模型生成更适合检索的表示。
 
-<code-block lang="python" collapsible="true" collapsed-title="指令微调代码实现">
+```python
 def create_instruction_tuning_data(documents, queries, relevance_judgments):
     """创建指令微调数据"""
     instruction_data = []
@@ -123,13 +123,13 @@ def instruction_finetune_embedding_model(base_model, instruction_data, output_pa
     # ...
     
     return finetuned_model
-</code-block>
+```
 
 ### 多任务学习 {id="multi_task_learning"}
 
 多任务学习通过同时优化多个相关任务，提高嵌入模型的泛化能力和鲁棒性。
 
-<code-block lang="python" collapsible="true" collapsed-title="多任务学习代码实现">
+```python
 def create_multitask_training_data(documents, queries, relevance_judgments):
     """创建多任务学习数据"""
     tasks = {
@@ -184,7 +184,7 @@ class MultitaskEmbeddingModel(nn.Module):
         
         # 否则返回基础嵌入
         return embeddings
-</code-block>
+```
 
 ## 检索算法优化 {id="retrieval_optimization"}
 
@@ -198,9 +198,7 @@ class MultitaskEmbeddingModel(nn.Module):
 
 结合基于向量的稠密检索和基于关键词的稀疏检索：
 
-<tabs>
-<tab title="代码实现">
-<code-block lang="python" collapsible="true" collapsed-title="HybridRetriever 类实现">
+```python
 from rank_bm25 import BM25Okapi
 import numpy as np
 from sklearn.preprocessing import normalize
@@ -259,15 +257,13 @@ class HybridRetriever:
         results = [(self.documents[i], doc_scores[i]) for i in sorted_indices[:top_k]]
         
         return results
-</code-block>
-</tab>
-</tabs>
+```
 
 #### 集成检索 {id="ensemble_retrieval"}
 
 集成多个检索器的结果，通过投票或加权方式提高检索质量：
 
-<code-block lang="python" collapsible="true" collapsed-title="EnsembleRetriever 类实现">
+```python
 class EnsembleRetriever:
     """集成检索器"""
     
@@ -311,7 +307,7 @@ class EnsembleRetriever:
         else:
             # 使用内容哈希作为标识符
             return hash(doc.page_content if hasattr(doc, 'page_content') else str(doc))
-</code-block>
+```
 
 ### 查询优化 {id="query_optimization"}
 
@@ -321,7 +317,7 @@ class EnsembleRetriever:
 
 通过添加相关术语或同义词扩展原始查询：
 
-<code-block lang="python" collapsible="true" collapsed-title="查询扩展函数实现">
+```python
 def expand_query_with_synonyms(query, synonym_api):
     """使用同义词扩展查询"""
     # 分词
@@ -355,13 +351,13 @@ def expand_query_with_llm(query, llm):
     # 合并原始查询和扩展关键词
     expanded_query = f"{query} {' '.join(keywords)}"
     return expanded_query
-</code-block>
+```
 
 #### 查询重写 {id="query_rewriting"}
 
 使用 LLM 重写查询，使其更适合检索：
 
-<code-block lang="python" collapsible="true" collapsed-title="查询重写函数实现">
+```python
 def rewrite_query_for_retrieval(query, llm):
     """重写查询以提高检索效果"""
     prompt = f"""请将以下用户查询重写为更适合文档检索的形式。
@@ -393,7 +389,7 @@ def generate_multiple_queries(query, llm, num_variations=3):
         query_variations.extend([query] * (num_variations - len(query_variations)))
     
     return query_variations
-</code-block>
+```
 
 ### 重排序算法 {id="reranking_algorithms"}
 
@@ -403,7 +399,7 @@ def generate_multiple_queries(query, llm, num_variations=3):
 
 使用交叉编码器模型评估查询-文档对的相关性：
 
-<code-block lang="python" collapsible="true" collapsed-title="CrossEncoderReranker 类实现">
+```python
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
 
@@ -454,13 +450,13 @@ class CrossEncoderReranker:
         if top_k:
             return [doc for doc, _ in scored_documents[:top_k]]
         return [doc for doc, _ in scored_documents]
-</code-block>
+```
 
 #### 多阶段重排序 {id="multi_stage_reranking"}
 
 通过多个阶段的重排序，平衡效率和精度：
 
-<code-block lang="python" collapsible="true" collapsed-title="MultiStageReranker 类实现">
+```python
 class MultiStageReranker:
     """多阶段重排序器"""
     
@@ -502,13 +498,13 @@ class MultiStageReranker:
         final_docs = self.cross_encoder.rerank(query, second_stage_docs, self.final_k)
         
         return final_docs
-</code-block>
+```
 
 #### 基于 LLM 的重排序 {id="llm_based_reranking"}
 
 利用 LLM 的理解能力进行高质量重排序：
 
-<code-block lang="python" collapsible="true" collapsed-title="LLM 重排序函数实现">
+```python
 def llm_rerank(query, documents, llm, top_k=5):
     """使用 LLM 重排序文档"""
     if not documents:
@@ -548,7 +544,7 @@ def llm_rerank(query, documents, llm, top_k=5):
     
     # 返回结果
     return [doc for doc, _ in scored_documents[:top_k]]
-</code-block>
+```
 
 ## 上下文优化 {id="context_optimization"}
 
@@ -562,7 +558,7 @@ def llm_rerank(query, documents, llm, top_k=5):
 
 使用 LLM 从检索文档中提取关键信息：
 
-<code-block lang="python" collapsible="true" collapsed-title="基于 LLM 的上下文提取函数实现">
+```python
 def extract_relevant_context(query, documents, llm):
     """从检索文档中提取与查询相关的关键信息"""
     combined_text = "\n\n".join([
@@ -582,13 +578,13 @@ def extract_relevant_context(query, documents, llm):
     
     extracted_context = llm.generate(prompt)
     return extracted_context
-</code-block>
+```
 
 #### 基于句子的上下文压缩 {id="sentence_based_compression"}
 
 通过句子级别的相关性评估压缩上下文：
 
-<code-block lang="python" collapsible="true" collapsed-title="基于句子的上下文压缩函数实现">
+```python
 import nltk
 from nltk.tokenize import sent_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -662,7 +658,7 @@ def compress_context_by_sentences(query, documents, compression_ratio=0.5):
         start_idx = end_idx
     
     return "\n\n".join(compressed_docs)
-</code-block>
+```
 
 ### 信息融合 {id="information_fusion"}
 
@@ -672,7 +668,7 @@ def compress_context_by_sentences(query, documents, compression_ratio=0.5):
 
 将检索结果按主题聚合，提供结构化上下文：
 
-<code-block lang="python" collapsible="true" collapsed-title="基于主题的信息聚合函数实现">
+```python
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import KMeans
 
@@ -731,13 +727,13 @@ def create_structured_context(query, topics):
             context += f"- {doc_text}\n\n"
     
     return context
-</code-block>
+```
 
 #### 冲突信息处理 {id="conflict_resolution"}
 
 处理检索结果中的冲突信息，提高上下文一致性：
 
-<code-block lang="python" collapsible="true" collapsed-title="冲突信息处理函数实现">
+```python
 def detect_and_resolve_conflicts(documents, llm):
     """检测并解决文档间的信息冲突"""
     # 提取文档文本
@@ -780,7 +776,7 @@ def detect_and_resolve_conflicts(documents, llm):
     
     # 如果没有冲突，返回原始文档
     return combined_text
-</code-block>
+```
 
 ### 上下文排序 {id="context_ordering"}
 
@@ -790,7 +786,7 @@ def detect_and_resolve_conflicts(documents, llm):
 
 根据与查询的相关性对上下文进行排序：
 
-<code-block lang="python" collapsible="true" collapsed-title="相关性排序函数实现">
+```python
 def order_by_relevance(query, documents, similarity_model):
     """根据相关性对文档排序"""
     # 计算每个文档与查询的相似度
@@ -812,13 +808,13 @@ def order_by_relevance(query, documents, similarity_model):
     scored_docs.sort(key=lambda x: x[1], reverse=True)
     
     return [doc for doc, _ in scored_docs]
-</code-block>
+```
 
 #### 信息流排序 {id="information_flow_ordering"}
 
 根据信息流逻辑对上下文进行排序，提高连贯性：
 
-<code-block lang="python" collapsible="true" collapsed-title="信息流排序函数实现">
+```python
 def order_by_information_flow(documents, llm):
     """根据信息流逻辑对文档排序"""
     # 提取文档文本
@@ -864,7 +860,7 @@ def order_by_information_flow(documents, llm):
     except:
         # 如果解析失败，返回原始顺序
         return documents
-</code-block>
+```
 
 ## 动态 RAG 策略 {id="dynamic_rag_strategies"}
 
@@ -874,7 +870,7 @@ def order_by_information_flow(documents, llm):
 
 根据查询类型选择最合适的检索策略：
 
-<code-block lang="python" collapsible="true" collapsed-title="QueryRouter 类实现">
+```python
 class QueryRouter:
     """查询路由器"""
     
@@ -920,13 +916,13 @@ class QueryRouter:
             return self.retrievers.get("opinion", self.retrievers["default"])
         else:
             return self.retrievers["default"]
-</code-block>
+```
 
 ### 自适应检索 {id="adaptive_retrieval"}
 
 根据初步检索结果动态调整检索策略：
 
-<code-block lang="python" collapsible="true" collapsed-title="AdaptiveRetriever 类实现">
+```python
 class AdaptiveRetriever:
     """自适应检索器"""
     
@@ -1017,13 +1013,13 @@ class AdaptiveRetriever:
         else:
             # 使用内容哈希作为标识符
             return hash(doc.page_content if hasattr(doc, 'page_content') else str(doc))
-</code-block>
+```
 
 ### 迭代检索 {id="iterative_retrieval"}
 
 通过多轮检索迭代优化结果：
 
-<code-block lang="python" collapsible="true" collapsed-title="迭代检索函数实现">
+```python
 def iterative_retrieval(query, retriever, llm, max_iterations=3):
     """执行迭代检索"""
     current_query = query
@@ -1094,7 +1090,7 @@ def iterative_retrieval(query, retriever, llm, max_iterations=3):
         )).strip()
     
     return best_results
-</code-block>
+```
 
 ## 评估与优化框架 {id="evaluation_framework"}
 
@@ -1104,7 +1100,7 @@ def iterative_retrieval(query, retriever, llm, max_iterations=3):
 
 通过预定义的测试集评估 RAG 系统性能：
 
-<code-block lang="python" collapsible="true">
+```python
 def evaluate_rag_system(rag_system, test_queries, ground_truth, metrics=None):
     """评估 RAG 系统性能"""
     if metrics is None:
@@ -1159,13 +1155,13 @@ def evaluate_rag_system(rag_system, test_queries, ground_truth, metrics=None):
                   for metric, scores in results.items()}
     
     return avg_results
-</code-block>
+```
 
 ### 在线评估 {id="online_evaluation"}
 
 通过用户反馈评估和改进 RAG 系统：
 
-<code-block lang="python" collapsible="true">
+```python
 class OnlineEvaluator:
     """在线评估器"""
     
@@ -1256,13 +1252,13 @@ class OnlineEvaluator:
         # 返回频率最高的问题
         sorted_issues = sorted(issue_keywords.items(), key=lambda x: x[1], reverse=True)
         return [{"issue": issue, "count": count} for issue, count in sorted_issues if count > 0]
-</code-block>
+```
 
 ### 持续优化 {id="continuous_optimization"}
 
 通过持续学习和适应改进 RAG 系统：
 
-<code-block lang="python" collapsible="true">
+```python
 class RAGOptimizer:
     """RAG 系统优化器"""
     
@@ -1433,7 +1429,7 @@ class RAGOptimizer:
             "strategy": "improved_response_format",
             "details": "Added source citations and confidence indicators"
         }
-</code-block>
+```
 
 ## 结论与未来方向 {id="conclusion"}
 
@@ -1466,7 +1462,7 @@ RAG 算法优化是一个快速发展的领域，随着大型语言模型和检�
 
 以下是一个简化的 RAG 系统实现示例，集成了本文讨论的多种优化技术：
 
-<code-block lang="python" collapsible="true">
+```python
 import torch
 from sentence_transformers import SentenceTransformer
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -1798,6 +1794,6 @@ class OptimizedRAGSystem:
             ],
             "context_used": context
         }
-</code-block>
+```
 
 这个示例实现了一个优化的 RAG 系统，包含了混合检索、查询优化、重排序和上下文压缩等技术。在实际应用中，可以根据具体需求进一步扩展和优化这个系统。

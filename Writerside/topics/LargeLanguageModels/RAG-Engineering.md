@@ -172,7 +172,7 @@ graph TD
 
 #### 文档加载与处理 {id="document_loading"}
 
-<code-block lang="python" collapsible="true">
+```python
 from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader, CSVLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -208,11 +208,11 @@ for i, chunk in enumerate(chunks):
         chunk.metadata["document_name"] = chunk.metadata["source"].split("/")[-1]
     # 添加时间戳
     chunk.metadata["indexed_at"] = datetime.now().isoformat()
-</code-block>
+```
 
 #### 向量化与索引 {id="vectorization_indexing"}
 
-<code-block lang="python" collapsible="true">
+```python
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import Chroma
 import os
@@ -242,11 +242,12 @@ from datetime import datetime
 backup_dir = f"./backups/chroma_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 os.makedirs(backup_dir, exist_ok=True)
 shutil.copytree(persist_directory, backup_dir)
-</code-block>
+```
+{ ignore-vars="true" }
 
 #### 增量更新策略 {id="incremental_updates"}
 
-<code-block lang="python" collapsible="true">
+```python
 def update_knowledge_base(new_documents, vectorstore):
     """增量更新知识库"""
     # 处理新文档
@@ -268,13 +269,13 @@ def update_knowledge_base(new_documents, vectorstore):
     
     print(f"已添加 {len(new_chunks)} 个新文档块到知识库")
     return len(new_chunks)
-</code-block>
+```
 
 ### 2. 检索与生成实现 {id="retrieval_generation"}
 
 #### 基础 RAG 实现 {id="basic_rag"}
 
-<code-block lang="python" collapsible="true">
+```python
 from langchain_openai import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
@@ -341,11 +342,11 @@ def query_knowledge_base(question):
         }
     except Exception as e:
         return {"error": str(e)}
-</code-block>
+```
 
 #### 高级 RAG 实现 {id="advanced_rag"}
 
-<code-block lang="python" collapsible="true">
+```python
 from langchain.chains import LLMChain
 from langchain.retrievers import ContextualCompressionRetriever
 from langchain.retrievers.document_compressors import LLMChainExtractor
@@ -452,13 +453,13 @@ class RerankerModel:
         if top_k:
             return [doc for doc, _ in scored_documents[:top_k]]
         return [doc for doc, _ in scored_documents]
-</code-block>
+```
 
 ### 3. Web 服务与 API 实现 {id="web_service_api"}
 
 #### FastAPI 服务 {id="fastapi_service"}
 
-<code-block lang="python" collapsible="true">
+```python
 from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
@@ -593,11 +594,11 @@ async def health_check():
 # 启动服务
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
-</code-block>
+```
 
 #### 缓存实现 {id="caching_implementation"}
 
-<code-block lang="python" collapsible="true">
+```python
 import redis
 import json
 import hashlib
@@ -654,13 +655,13 @@ async def query_rag(
     retriever = Depends(get_retriever)
 ):
     # 原始实现...
-</code-block>
+```
 
 ### 4. 部署与扩展 {id="deployment_scaling"}
 
 #### Docker 容器化 {id="docker_containerization"}
 
-<code-block lang="DOCKER">
+```docker
 # Dockerfile
 FROM python:3.10-slim
 
@@ -685,9 +686,9 @@ EXPOSE 8000
 
 # 启动命令
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
-</code-block>
+```
 
-<code-block>
+``` text
 # requirements.txt
 fastapi==0.103.1
 uvicorn==0.23.2
@@ -700,11 +701,11 @@ redis==4.6.0
 sentence-transformers==2.2.2
 pydantic==2.4.2
 python-dotenv==1.0.0 
-</code-block>
+```
 
 #### Docker Compose 配置 {id="docker_compose"}
 
-<code-block lang="yaml" collapsible="true">
+```yaml
 # docker-compose.yml
 version: '3'
 
@@ -753,11 +754,11 @@ services:
 
 volumes:
   redis_data:
-</code-block>
+```
 
 #### Kubernetes 部署 {id="kubernetes_deployment"}
 
-<code-block lang="yaml" collapsible="true">
+```yaml
 # rag-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -852,7 +853,7 @@ spec:
             name: rag-api-service
             port:
               number: 80
-</code-block>
+```
 
 ### 5. 性能优化与监控 {id="performance_monitoring"}
 
@@ -860,7 +861,7 @@ spec:
 
 **批量处理**：
 
-<code-block lang="python" collapsible="true">
+```python
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
@@ -898,11 +899,11 @@ def process_document(doc):
     # 文档处理逻辑
     # ...
     return processed_doc
-</code-block>
+```
 
 **检索优化**：
 
-<code-block lang="python" collapsible="true">
+```python
 def optimize_retrieval_parameters():
     """优化检索参数"""
     # 测试不同的 k 值
@@ -944,11 +945,11 @@ def optimize_retrieval_parameters():
     logger.info(f"最佳检索配置: {best_config[0]} (分数: {best_config[1]})")
     
     return best_config
-</code-block>
+```
 
 **模型量化**：
 
-<code-block lang="python" collapsible="true">
+```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
@@ -983,13 +984,13 @@ def load_quantized_model(model_name, quantization="4bit"):
     
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     return model, tokenizer
-</code-block>
+```
 
 #### 监控系统 {id="monitoring_system"}
 
 **Prometheus 指标**：
 
-<code-block lang="python" collapsible="true">
+```python
 from prometheus_client import Counter, Histogram, Gauge, Summary
 import prometheus_client
 
@@ -1018,7 +1019,7 @@ def update_document_count():
 @app.get("/metrics")
 async def metrics():
     return prometheus_client.generate_latest()
-</code-block>
+```
 
 **Grafana 仪表板**：
 
@@ -1081,7 +1082,7 @@ async def request_id_middleware(request, call_next):
 
 **敏感信息处理**：
 
-<code-block lang="python" collapsible="true">
+```python
 import re
 from typing import List, Pattern
 
@@ -1159,11 +1160,11 @@ def filter_response(response):
             elif isinstance(item, (dict, list)):
                 filter_response(item)
     return response
-</code-block>
+```
 
 **访问控制**：
 
-<code-block lang="python" collapsible="true">
+```python
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
@@ -1278,13 +1279,13 @@ async def query_rag(
     
     # 实现查询逻辑
     # ...
-</code-block>
+```
 
 #### 合规与审计 {id="compliance_auditing"}
 
 **审计日志**：
 
-<code-block lang="python" collapsible="true">
+```python
 import json
 from datetime import datetime
 import uuid
@@ -1390,11 +1391,11 @@ def query_audit_logs(start_time=None, end_time=None, user=None, event_type=None,
                 continue
     
     return results
-</code-block>
+```
 
 **内容过滤**：
 
-<code-block lang="python" collapsible="true">
+```python
 class ContentFilter:
     """内容过滤器"""
     
@@ -1458,13 +1459,13 @@ async def query_rag(
     response.answer = content_filter.filter_response(response.answer)
     
     return response
-</code-block>
+```
 
 ### 7. 测试与评估 {id="testing_evaluation"}
 
 #### 单元测试 {id="unit_testing"}
 
-<code-block lang="python" collapsible="true">
+```python
 # test_retriever.py
 import unittest
 from unittest.mock import MagicMock, patch
@@ -1514,9 +1515,9 @@ class TestRetriever(unittest.TestCase):
         
         # 验证向量存储使用了转换后的查询
         self.mock_vectorstore.similarity_search.assert_called_once_with("增强的测试查询", k=2)
-</code-block>
+```
 
-<code-block lang="python" collapsible="true">
+```python
 # test_rag_chain.py
 class TestRAGChain(unittest.TestCase):
     
@@ -1550,11 +1551,11 @@ class TestRAGChain(unittest.TestCase):
         self.assertEqual(result["result"], "生成的回答")
         self.assertEqual(len(result["source_documents"]), 1)
         self.assertEqual(result["source_documents"][0].page_content, "相关文档内容")
-</code-block>
+```
 
 #### 集成测试 {id="integration_testing"}
 
-<code-block lang="python" collapsible="true">
+```python
 # test_api.py
 from fastapi.testclient import TestClient
 from app import app
@@ -1604,11 +1605,11 @@ def test_error_handling():
         response = client.post("/rag/query", json={"text": "测试查询"})
         assert response.status_code == 500
         assert "detail" in response.json()
-</code-block>
+```
 
 #### 性能测试 {id="performance_testing"}
 
-<code-block lang="python" collapsible="true">
+```python
 # test_performance.py
 import time
 import statistics
@@ -1712,11 +1713,11 @@ def test_rag_performance():
     # 验证性能指标
     assert results["success_rate"] >= 0.95  # 至少 95% 成功率
     assert results["p95_latency"] <= 5.0    # 95% 的请求在 5 秒内完成
-</code-block>
+```
 
 #### 评估框架 {id="evaluation_framework"}
 
-<code-block lang="python" collapsible="true">
+```python
 # evaluation.py
 from typing import List, Dict, Any, Callable
 import json
@@ -1878,7 +1879,7 @@ class RAGEvaluator:
         }
         
         return combined_metrics
-</code-block>
+```
 
 ### 8. 最佳实践与经验总结 {id="best_practices"}
 
@@ -1914,14 +1915,14 @@ class RAGEvaluator:
 
 #### 常见问题与解决方案 {id="common_issues_solutions"}
 
-| 问题      | 症状               | 解决方案                                                          |
-|---------|------------------|---------------------------------------------------------------|
-| 检索不相关   | 返回的文档与查询无关       | 1. 优化嵌入模型<br>2. 实现查询重写<br>3. 调整分块策略<br>4. 添加重排序步骤             |
-| 幻觉生成    | 回答包含检索内容中不存在的信息  | 1. 降低 LLM 温度参数<br>2. 使用更明确的提示<br>3. 实现自我验证<br>4. 增加检索文档数量     |
-| 响应延迟高   | 系统响应时间过长         | 1. 实现结果缓存<br>2. 优化向量索引<br>3. 批处理请求<br>4. 使用更轻量级的模型            |
-| 上下文长度限制 | 检索结果超出 LLM 上下文窗口 | 1. 实现上下文压缩<br>2. 使用长上下文模型<br>3. 分块总结检索结果<br>4. 实现多步生成         |
-| 知识时效性   | 回答包含过时信息         | 1. 定期更新知识库<br>2. 添加时间戳元数据<br>3. 基于时间过滤检索结果<br>4. 在提示中说明知识截止日期 |
-| 领域特定术语  | 检索和生成对专业术语处理不佳   | 1. 使用领域特定嵌入模型<br>2. 添加术语表<br>3. 优化分块以保留术语上下文<br>4. 微调 LLM     |
+| 问题 | 症状 | 解决方案 |
+|-----|-----|---------|
+| 检索不相关 | 返回的文档与查询无关 | 1. 优化嵌入模型<br/>2. 实现查询重写<br/>3. 调整分块策略<br/>4. 添加重排序步骤 |
+| 幻觉生成 | 回答包含检索内容中不存在的信息 | 1. 降低 LLM 温度参数<br/>2. 使用更明确的提示<br/>3. 实现自我验证<br/>4. 增加检索文档数量 |
+| 响应延迟高 | 系统响应时间过长 | 1. 实现结果缓存<br/>2. 优化向量索引<br/>3. 批处理请求<br/>4. 使用更轻量级的模型 |
+| 上下文长度限制 | 检索结果超出 LLM 上下文窗口 | 1. 实现上下文压缩<br/>2. 使用长上下文模型<br/>3. 分块总结检索结果<br/>4. 实现多步生成 |
+| 知识时效性 | 回答包含过时信息 | 1. 定期更新知识库<br/>2. 添加时间戳元数据<br/>3. 基于时间过滤检索结果<br/>4. 在提示中说明知识截止日期 |
+| 领域特定术语 | 检索和生成对专业术语处理不佳 | 1. 使用领域特定嵌入模型<br/>2. 添加术语表<br/>3. 优化分块以保留术语上下文<br/>4. 微调 LLM |
 
 #### 性能优化清单 {id="performance_optimization_checklist"}
 

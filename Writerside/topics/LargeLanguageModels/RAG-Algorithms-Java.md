@@ -34,7 +34,7 @@ Java 平台上有多个成熟的框架可用于构建 RAG 系统的各个组件�
 
 DJL 是一个强大的 Java 深度学习库，可以加载和使用各种预训练模型：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.embedding;
 
 import ai.djl.MalformedModelException;
@@ -92,13 +92,13 @@ public class DJLEmbeddingModel implements EmbeddingModel {
         }
     }
 }
-</code-block>
+```
 
 ### 使用 Langchain4j 的嵌入功能 {id="langchain4j_embedding"}
 
 Langchain4j 提供了与多种嵌入服务的集成：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.embedding;
 
 import dev.langchain4j.data.embedding.Embedding;
@@ -150,7 +150,7 @@ public class Langchain4jEmbeddingModel implements com.example.rag.embedding.Embe
         // Langchain4j 模型不需要显式关闭
     }
 }
-</code-block>
+```
 
 ## 检索算法实现 {id="retrieval_implementation"}
 
@@ -158,7 +158,7 @@ public class Langchain4jEmbeddingModel implements com.example.rag.embedding.Embe
 
 Lucene 是 Java 生态中最强大的搜索引擎库，可以实现高效的混合检索：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.retrieval;
 
 import com.example.rag.document.Document;
@@ -294,13 +294,13 @@ public class LuceneHybridRetriever implements Retriever {
         directory.close();
     }
 }
-</code-block>
+```
 
 ### 使用 Elasticsearch 实现混合检索 {id="elasticsearch_hybrid_retrieval"}
 
 Elasticsearch 提供了分布式搜索能力，适合大规模 RAG 系统：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.retrieval;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
@@ -415,13 +415,13 @@ public class ElasticsearchHybridRetriever implements Retriever {
         // 关闭客户端
     }
 }
-</code-block>
+```
 
 ### 使用 Langchain4j 实现检索 {id="langchain4j_retrieval"}
 
 Langchain4j 提供了内置的检索功能，简化了 RAG 系统的实现：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.retrieval;
 
 import com.example.rag.document.Document;
@@ -499,7 +499,7 @@ public class Langchain4jRetriever implements Retriever {
         // 不需要显式关闭
     }
 }
-</code-block>
+```
 
 ## 重排序算法实现 {id="reranking_implementation"}
 
@@ -507,7 +507,7 @@ public class Langchain4jRetriever implements Retriever {
 
 使用 DJL 加载交叉编码器模型进行重排序：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.reranking;
 
 import ai.djl.MalformedModelException;
@@ -570,13 +570,13 @@ public class DJLCrossEncoderReranker implements Reranker {
         }
     }
 }
-</code-block>
+```
 
 ### 使用 Langchain4j 实现 LLM 重排序 {id="langchain4j_llm_reranking"}
 
 使用 Langchain4j 的 LLM 集成进行重排序：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.reranking;
 
 import com.example.rag.document.Document;
@@ -651,7 +651,7 @@ public class Langchain4jLLMReranker implements Reranker {
         executor.shutdown();
     }
 }
-</code-block>
+```
 
 ## 上下文优化实现 {id="context_optimization_implementation"}
 
@@ -659,7 +659,7 @@ public class Langchain4jLLMReranker implements Reranker {
 
 使用 OpenNLP 进行句子分割和相关性评估：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.context;
 
 import com.example.rag.document.Document;
@@ -805,13 +805,13 @@ public class OpenNLPContextCompressor implements ContextProcessor {
         // OpenNLP 模型不需要显式关闭
     }
 }
-</code-block>
+```
 
 ### 使用 Langchain4j 实现 LLM 上下文压缩 {id="langchain4j_context_compression"}
 
 使用 Langchain4j 的 LLM 集成进行上下文压缩：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.context;
 
 import com.example.rag.document.Document;
@@ -867,7 +867,7 @@ public class Langchain4jLLMCompressor implements ContextProcessor {
         // 不需要显式关闭
     }
 }
-</code-block>
+```
 
 ## 完整 RAG 系统实现 {id="complete_rag_implementation"}
 
@@ -875,7 +875,7 @@ public class Langchain4jLLMCompressor implements ContextProcessor {
 
 使用 Langchain4j 构建完整的 RAG 系统：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag;
 
 import com.example.rag.document.Document;
@@ -974,13 +974,13 @@ public class Langchain4jRAGSystem {
         // 不需要显式关闭
     }
 }
-</code-block>
+```
 
 ### 基于 Lucene 和 DJL 的自定义 RAG 系统 {id="custom_rag_system"}
 
 使用 Lucene 和 DJL 构建自定义 RAG 系统：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag;
 
 import ai.djl.MalformedModelException;
@@ -1069,7 +1069,7 @@ public class CustomRAGSystem implements AutoCloseable {
         contextProcessor.close();
     }
 }
-</code-block>
+```
 
 ## 实用工具类 {id="utility_classes"}
 
@@ -1077,7 +1077,7 @@ public class CustomRAGSystem implements AutoCloseable {
 
 用于表示文档的基本类：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.document;
 
 public class Document {
@@ -1117,13 +1117,13 @@ public class Document {
         this.score = score;
     }
 }
-</code-block>
+```
 
 ### 嵌入模型接口 {id="embedding_model_interface"}
 
 定义嵌入模型的通用接口：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.embedding;
 
 import ai.djl.translate.TranslateException;
@@ -1134,13 +1134,13 @@ public interface EmbeddingModel extends AutoCloseable {
     float[] encode(String text) throws TranslateException;
     List<float[]> batchEncode(List<String> texts) throws TranslateException;
 }
-</code-block>
+```
 
 ### 检索器接口 {id="retriever_interface"}
 
 定义检索器的通用接口：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.retrieval;
 
 import com.example.rag.document.Document;
@@ -1150,13 +1150,13 @@ import java.util.List;
 public interface Retriever extends AutoCloseable {
     List<Document> retrieve(String query, int topK) throws Exception;
 }
-</code-block>
+```
 
 ### 重排序器接口 {id="reranker_interface"}
 
 定义重排序器的通用接口：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.reranking;
 
 import com.example.rag.document.Document;
@@ -1166,13 +1166,13 @@ import java.util.List;
 public interface Reranker extends AutoCloseable {
     List<Document> rerank(String query, List<Document> documents, int topK) throws Exception;
 }
-</code-block>
+```
 
 ### 上下文处理器接口 {id="context_processor_interface"}
 
 定义上下文处理器的通用接口：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.context;
 
 import com.example.rag.document.Document;
@@ -1182,7 +1182,7 @@ import java.util.List;
 public interface ContextProcessor extends AutoCloseable {
     String process(String query, List<Document> documents) throws Exception;
 }
-</code-block>
+```
 
 ## 示例应用 {id="example_application"}
 
@@ -1190,7 +1190,7 @@ public interface ContextProcessor extends AutoCloseable {
 
 一个简单的命令行 RAG 应用示例：
 
-<code-block collapsible="true" lang="java">
+```java
 package com.example.rag.app;
 
 import com.example.rag.Langchain4jRAGSystem;
@@ -1274,7 +1274,7 @@ public class RAGCliApplication {
         return documents;
     }
 }
-</code-block>
+```
 
 ## 总结 {id="conclusion"}
 

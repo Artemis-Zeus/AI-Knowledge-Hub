@@ -84,7 +84,7 @@ RAG系统在Java中通常采用微服务架构，将各个功能模块解耦，�
 
 使用Apache Tika实现多格式文档的文本提取：
 
-<code-block collapsible="true" lang="java">
+```java
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.springframework.stereotype.Service;
@@ -100,30 +100,30 @@ public class DocumentProcessor {
         return tika.parseToString(inputStream);
     }
     
-    public List&lt;String&gt; splitIntoChunks(String text, int chunkSize, int overlap) {
-        List&lt;String&gt; chunks = new ArrayList&lt;&gt;();
+    public List<String> splitIntoChunks(String text, int chunkSize, int overlap) {
+        List<String> chunks = new ArrayList<>();
         // 实现文本分块逻辑，考虑句子和段落边界
         // ...
         return chunks;
     }
 }
-</code-block>
+```
 
 ### 文本分块策略 {id="text_chunking"}
 
 实现智能分块，保持语义完整性：
 
-<code-block collapsible="true" lang="java">
-public List&lt;String&gt; splitTextIntoChunks(String text, int targetChunkSize, int overlap) {
-    List&lt;String&gt; sentences = splitIntoSentences(text);
-    List&lt;String&gt; chunks = new ArrayList&lt;&gt;();
+```java
+public List<String> splitTextIntoChunks(String text, int targetChunkSize, int overlap) {
+    List<String> sentences = splitIntoSentences(text);
+    List<String> chunks = new ArrayList<>();
     StringBuilder currentChunk = new StringBuilder();
 
-    for (int i = 0; i &lt; sentences.size(); i++) {
+    for (int i = 0; i < sentences.size(); i++) {
         String sentence = sentences.get(i);
         
         // 如果当前块加上新句子不超过目标大小，则添加
-        if (currentChunk.length() + sentence.length() &lt;= targetChunkSize) {
+        if (currentChunk.length() + sentence.length() <= targetChunkSize) {
             currentChunk.append(sentence).append(" ");
         } else {
             // 保存当前块并创建新块
@@ -132,14 +132,14 @@ public List&lt;String&gt; splitTextIntoChunks(String text, int targetChunkSize, 
             // 新块从上一块的末尾开始，实现重叠
             int overlapStart = Math.max(0, i - calculateSentencesForOverlap(sentences, i, overlap));
             currentChunk = new StringBuilder();
-            for (int j = overlapStart; j &lt;= i; j++) {
+            for (int j = overlapStart; j <= i; j++) {
                 currentChunk.append(sentences.get(j)).append(" ");
             }
         }
     }
     
     // 添加最后一个块
-    if (currentChunk.length() &gt; 0) {
+    if (currentChunk.length() > 0) {
         chunks.add(currentChunk.toString().trim());
     }
     
@@ -168,13 +168,13 @@ int sentenceCount = 0;
     return sentenceCount;
 
 }
-</code-block>
+```
 
 ### 嵌入生成模块 {id="embedding_generation"}
 
 使用LangChain4j与OpenAI API集成：
 
-<code-block collapsible="true" lang="java">
+```java
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
@@ -196,19 +196,19 @@ public class EmbeddingService {
         return embeddingModel.embed(text).content();
     }
     
-    public List&lt;Embedding&gt; batchGenerateEmbeddings(List&lt;String&gt; texts) {
+    public List<Embedding> batchGenerateEmbeddings(List<String> texts) {
         return texts.stream()
                 .map(this::generateEmbedding)
                 .collect(Collectors.toList());
     }
 }
-</code-block>
+```
 
 ### 向量存储模块 {id="vector_storage"}
 
 使用PGVector实现向量存储：
 
-<code-block collapsible="true" lang="java">
+```java
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -258,7 +258,7 @@ public class PgVectorRepository {
         });
     }
     
-    public List&lt;DocumentChunk&gt; findSimilarDocuments(float[] queryEmbedding, int limit) {
+    public List<DocumentChunk> findSimilarDocuments(float[] queryEmbedding, int limit) {
         return jdbcTemplate.query(
                 "SELECT id, content, metadata, " +
                 "1 - (embedding &lt;=&gt; ?) AS similarity " +
@@ -278,17 +278,17 @@ public class PgVectorRepository {
     
     private Object[] toObjectArray(float[] array) {
         Float[] result = new Float[array.length];
-        for (int i = 0; i &lt; array.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             result[i] = array[i];
         }
         return result;
     }
 }
-</code-block>
+```
 
 ### 查询处理模块 {id="query_processing"}
 
-<code-block collapsible="true" lang="java">
+```java
 import dev.langchain4j.data.embedding.Embedding;
 import org.springframework.stereotype.Service;
 
@@ -302,7 +302,7 @@ public class QueryService {
         this.vectorRepository = vectorRepository;
     }
     
-    public List&lt;DocumentChunk&gt; retrieveRelevantDocuments(String query, int limit) {
+    public List<DocumentChunk> retrieveRelevantDocuments(String query, int limit) {
         // 生成查询嵌入
         Embedding queryEmbedding = embeddingService.generateEmbedding(query);
         
@@ -312,7 +312,7 @@ public class QueryService {
                 .toArray(), limit);
     }
     
-    public String buildContext(List&lt;DocumentChunk&gt; relevantChunks) {
+    public String buildContext(List<DocumentChunk> relevantChunks) {
         // 根据相关性和多样性构建上下文
         return relevantChunks.stream()
                 .sorted(Comparator.comparingDouble(DocumentChunk::getSimilarity).reversed())
@@ -320,13 +320,13 @@ public class QueryService {
                 .collect(Collectors.joining("\n\n"));
     }
 }
-</code-block>
+```
 
 ### 响应生成模块 {id="response_generation"}
 
 使用LangChain4j与OpenAI API集成：
 
-<code-block collapsible="true" lang="java">
+```java
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
@@ -353,7 +353,7 @@ public class ResponseGenerationService {
     
     public String generateResponse(String query) {
         // 检索相关文档
-        List&lt;DocumentChunk&gt; relevantDocs = queryService.retrieveRelevantDocuments(query, 5);
+        List<DocumentChunk> relevantDocs = queryService.retrieveRelevantDocuments(query, 5);
         
         // 构建上下文
         String context = queryService.buildContext(relevantDocs);
@@ -373,14 +373,14 @@ public class ResponseGenerationService {
         String chat(@ContextVariable("context") String context, @UserMessage String userMessage);
     }
 }
-</code-block>
+```
 
 ## 高级功能实现 {id="advanced_features"}
 
 ### 元数据过滤 {id="metadata_filtering"}
 
-<code-block collapsible="true" lang="java">
-public List&lt;DocumentChunk&gt; retrieveWithMetadataFilter(String query, String metadataFilter, int limit) {
+```java
+public List<DocumentChunk> retrieveWithMetadataFilter(String query, String metadataFilter, int limit) {
     Embedding queryEmbedding = embeddingService.generateEmbedding(query);
 
     return jdbcTemplate.query(
@@ -390,7 +390,7 @@ public List&lt;DocumentChunk&gt; retrieveWithMetadataFilter(String query, String
             "WHERE metadata @&gt; ?::jsonb " +
             "ORDER BY similarity DESC " +
             "LIMIT ?",
-            (rs, rowNum) -&gt; new DocumentChunk(
+            (rs, rowNum) -> new DocumentChunk(
                     rs.getObject("id", UUID.class),
                     rs.getString("content"),
                     rs.getString("metadata"),
@@ -400,16 +400,15 @@ public List&lt;DocumentChunk&gt; retrieveWithMetadataFilter(String query, String
             metadataFilter,
             limit
     );
-
 }
-</code-block>
+```
 
 ### 混合搜索 {id="hybrid_search"}
 
 结合向量搜索和关键词搜索：
 
-<code-block collapsible="true" lang="java">
-public List&lt;DocumentChunk&gt; hybridSearch(String query, int limit) {
+```java
+public List<DocumentChunk> hybridSearch(String query, int limit) {
     Embedding queryEmbedding = embeddingService.generateEmbedding(query);
 
     return jdbcTemplate.query(
@@ -421,7 +420,7 @@ public List&lt;DocumentChunk&gt; hybridSearch(String query, int limit) {
             "WHERE to_tsvector('english', content) @@ plainto_tsquery('english', ?) " +
             "ORDER BY hybrid_score DESC " +
             "LIMIT ?",
-            (rs, rowNum) -&gt; new DocumentChunk(
+            (rs, rowNum) -> new DocumentChunk(
                     rs.getObject("id", UUID.class),
                     rs.getString("content"),
                     rs.getString("metadata"),
@@ -432,15 +431,14 @@ public List&lt;DocumentChunk&gt; hybridSearch(String query, int limit) {
             query,
             limit
     );
-
 }
-</code-block>
+```
 
 ### 缓存实现 {id="caching_implementation"}
 
 使用Spring Cache和Redis实现缓存：
 
-<code-block collapsible="true" lang="java">
+```java
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -457,11 +455,11 @@ public class CachedResponseService {
         return responseService.generateResponse(query);
     }
 }
-</code-block>
+```
 
 Redis配置：
 
-<code-block collapsible="true" lang="java">
+```java
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -486,7 +484,7 @@ public class CacheConfig {
                 .build();
     }
 }
-</code-block>
+```
 
 ## 性能优化 {id="performance_optimization"}
 
@@ -494,7 +492,7 @@ public class CacheConfig {
 
 使用Spring的异步功能处理大量文档：
 
-<code-block collapsible="true" lang="java">
+```java
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -508,16 +506,16 @@ public class AsyncDocumentProcessor {
     private final PgVectorRepository vectorRepository;
     
     @Async
-    public CompletableFuture&lt;Void&gt; processDocumentBatch(List&lt;String&gt; documents, String metadata) {
-        List&lt;String&gt; chunks = documents.stream()
+    public CompletableFuture<Void> processDocumentBatch(List<String> documents, String metadata) {
+        List<String> chunks = documents.stream()
                 .flatMap(doc -> documentProcessor.splitIntoChunks(doc, 1000, 200).stream())
                 .collect(Collectors.toList());
                 
         // 批量生成嵌入
-        List&lt;Embedding&gt; embeddings = embeddingService.batchGenerateEmbeddings(chunks);
+        List<Embedding> embeddings = embeddingService.batchGenerateEmbeddings(chunks);
         
         // 批量保存
-        for (int i = 0; i &lt; chunks.size(); i++) {
+        for (int i = 0; i < chunks.size(); i++) {
             vectorRepository.saveDocumentChunk(
                 chunks.get(i),
                 embeddings.get(i).vectorAsList().stream().mapToFloat(Float::floatValue).toArray(),
@@ -528,11 +526,11 @@ public class AsyncDocumentProcessor {
         return CompletableFuture.completedFuture(null);
     }
 }
-</code-block>
+```
 
 ### 连接池优化 {id="connection_pool_optimization"}
 
-<code-block collapsible="true" lang="java">
+```java
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
@@ -557,11 +555,11 @@ public class DatabaseConfig {
         return new HikariDataSource(config);
     }
 }
-</code-block>
+```
 
 ### Micrometer指标收集 {id="micrometer_metrics"}
 
-<code-block collapsible="true" lang="java">
+```java
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.stereotype.Component;
@@ -590,11 +588,11 @@ public class RagMetrics {
         return responseGenerationTimer;
     }
 }
-</code-block>
+```
 
 ### 日志与追踪 {id="logging_tracing"}
 
-<code-block collapsible="true" lang="java">
+```java
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -618,7 +616,7 @@ public class TracedQueryService {
         
         try {
             // 记录向量搜索时间
-            List&lt;DocumentChunk&gt; relevantDocs = metrics.getVectorSearchTimer()
+            List<DocumentChunk> relevantDocs = metrics.getVectorSearchTimer()
                     .record(() -> queryService.retrieveRelevantDocuments(query, 5));
             
             logger.info("Query [{}]: Retrieved {} relevant documents in {}ms", 
@@ -641,23 +639,23 @@ public class TracedQueryService {
         }
     }
 }
-</code-block>
+```
 
 ## 部署与扩展 {id="deployment_scaling"}
 
 ### Docker配置 {id="docker_configuration"}
 
-<code-block collapsible="true" lang="Docker">
+```docker
 FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 COPY target/rag-application.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
-</code-block>
+```
 
 ### Kubernetes配置 {id="kubernetes_configuration"}
 
-<code-block collapsible="true" lang="yaml">
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -696,7 +694,7 @@ spec:
           value: "jdbc:postgresql://postgres:5432/ragdb"
         - name: SPRING_REDIS_HOST
           value: "redis"
-</code-block>
+```
 
 ## 总结 {id="conclusion"}
 
