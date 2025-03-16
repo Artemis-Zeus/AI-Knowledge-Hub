@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="in"
+                 name="AI-Knowledge-Hub"
+                 start-page="Welcome.md">
+
+    <toc-element topic="Welcome.md"/>
+    <toc-element topic="LargeLanguageModels.md">
+        <toc-element topic="RAG.md"/>
+        <toc-element topic="RAG-Engineering.md"/>
+        <toc-element topic="RAG-Engineering-Java.md"/>
+        <toc-element topic="RAG-Algorithms.md"/>
+        <toc-element topic="RAG-Algorithms-Java.md"/>
+    </toc-element>
+    <toc-element topic="MultimodalAI.md">
+
+    </toc-element>
+    <toc-element topic="GenerativeAI.md">
+
+    </toc-element>
+    <toc-element topic="AIAgents.md">
+
+    </toc-element>
+    <toc-element topic="AIInfrastructure.md">
+
+    </toc-element>
+
+</instance-profile>
