@@ -21,7 +21,8 @@
 
     </toc-element>
     <toc-element topic="AIAgents.md">
-
+        <toc-element topic="IntentRecognition.md"/>
+        <toc-element topic="IntentRecognitionEngineering.md"/>
     </toc-element>
     <toc-element topic="AIInfrastructure.md">
 
